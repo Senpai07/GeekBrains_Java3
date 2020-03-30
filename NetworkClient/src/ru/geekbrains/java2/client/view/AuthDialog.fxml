@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="300.0" prefWidth="700.0" style="-fx-background-color: #2E3348;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.geekbrains.java2.client.view.AuthDialog">
+    <children>
+        <AnchorPane layoutX="-1.0" layoutY="56.0" prefHeight="344.0" prefWidth="700.0" style="-fx-background-color: #fafafa;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="56.0">
+            <children>
+                <AnchorPane layoutX="112.0" layoutY="405.0" prefHeight="25.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+            <TextField fx:id="userNameEdit" layoutX="193.0" layoutY="40.0" prefHeight="38.0" prefWidth="315.0" promptText="Имя пользователя" style="-fx-background-color: #fafafa; -fx-border-color: silver; -fx-border-radius: 5;">
+               <font>
+                  <Font size="17.0" />
+               </font></TextField>
+                <PasswordField fx:id="userPassEdit" layoutX="193.0" layoutY="93.0" prefHeight="38.0" prefWidth="315.0" promptText="Пароль" style="-fx-background-color: #fafafa; -fx-border-color: silver; -fx-border-radius: 5;">
+                    <font>
+                        <Font size="17.0" />
+                    </font>
+                </PasswordField>
+            <Button fx:id="authButton" layoutX="269.0" layoutY="164.0" mnemonicParsing="false" onAction="#authButtonAction" prefHeight="38.0" prefWidth="162.0" style="-fx-background-color: #f39c63;" text="Авторизация" textFill="WHITE">
+               <font>
+                  <Font name="Georgia Bold" size="17.0" />
+               </font>
+            </Button>
+            </children></AnchorPane>
+        <Label alignment="CENTER" layoutY="6.0" minWidth="-Infinity" prefHeight="42.0" prefWidth="700.0" text="Чат и Ко" textFill="WHITE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <font>
+                <Font name="Monotype Corsiva" size="34.0" />
+            </font>
+        </Label>
+        <Button fx:id="exitButton" layoutX="620.0" layoutY="15.0" mnemonicParsing="false" onAction="#closeProgram" prefHeight="25.0" prefWidth="66.0" style="-fx-background-color: #f39c63;" text="Выйти" textFill="WHITE" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="15.0">
+            <font>
+                <Font name="Georgia Bold" size="13.0" />
+            </font></Button>
+    </children>
+</AnchorPane>
