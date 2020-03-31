@@ -78,17 +78,6 @@ public class NetworkService {
                     }
                     default -> System.err.println("Unknown type of command: " + command.getType());
                   }
-
-//                  if (message.startsWith("/auth")) {
-//                    String[] messageParts = message.split("\\s+", 2);
-//                    nickname = messageParts[1];
-//                  } else if (messageHandler != null) {
-//                    messageHandler.handle(message);
-//                  } else
-//                    Platform.runLater(
-//                        () ->
-//                            Message.ShowMessage(
-//                                "Ошибка аутентификации!", message, Alert.AlertType.ERROR));
                 } catch (IOException e) {
                   System.out.println("Поток чтения был прерван!");
                   return;

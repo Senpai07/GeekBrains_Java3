@@ -2,7 +2,7 @@ package ru.geekbrains.java2.server;
 
 import ru.geekbrains.java2.client.Command;
 import ru.geekbrains.java2.server.auth.AuthService;
-import ru.geekbrains.java2.server.auth.BaseAuthService;
+import ru.geekbrains.java2.server.auth.DBAuthService;
 import ru.geekbrains.java2.server.client.ClientHandler;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class NetworkServer {
 
   public NetworkServer(int port) {
     this.port = port;
-    this.authService = new BaseAuthService();
+    this.authService = new DBAuthService();
   }
 
   public void start() {
