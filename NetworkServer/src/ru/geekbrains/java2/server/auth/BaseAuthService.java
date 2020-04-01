@@ -57,4 +57,9 @@ public class BaseAuthService implements AuthService {
   public void stop() {
     System.out.println("Сервис аутентификации оставлен");
   }
+
+  @Override
+  public void changNickname(String nickname, String newNickname) {
+    System.out.println("Смена ника на новый");
+  }
 }

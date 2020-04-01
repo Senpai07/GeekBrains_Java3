@@ -3,10 +3,7 @@ package ru.geekbrains.java2.client.model;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import ru.geekbrains.java2.client.Command;
-import ru.geekbrains.java2.client.command.AuthCommand;
-import ru.geekbrains.java2.client.command.ErrorCommand;
-import ru.geekbrains.java2.client.command.MessageCommand;
-import ru.geekbrains.java2.client.command.UpdateUsersListCommand;
+import ru.geekbrains.java2.client.command.*;
 import ru.geekbrains.java2.client.controller.AuthEvent;
 import ru.geekbrains.java2.client.controller.ClientController;
 import ru.geekbrains.java2.client.controller.MessageHandler;
@@ -75,6 +72,12 @@ public class NetworkService {
                               (UpdateUsersListCommand) command.getData();
                       List<String> users = commandData.getUsers();
                       Platform.runLater(() -> controller.updateUsersList(users));
+                    }
+                    case CHANGE_NICKNAME -> {
+                      ChangeNicknameCommand commandData =
+                              (ChangeNicknameCommand) command.getData();
+                      String newNickname = commandData.getNewNickname();
+                      controller.setNickname(newNickname);
                     }
                     default -> System.err.println("Unknown type of command: " + command.getType());
                   }

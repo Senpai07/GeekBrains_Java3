@@ -60,23 +60,25 @@ public class DBAuthService implements AuthService {
         return null;
     }
 
-    private static void createDB() throws ClassNotFoundException, SQLException {
+    private static void createDB() throws SQLException {
         statmt = conn.createStatement();
-        statmt.execute("CREATE TABLE if not exists 'users' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'login' text, 'password' text, 'username' text);");
+        String sql = "CREATE TABLE if not exists 'users' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'login' text, 'password' text, 'username' text);";
+        statmt.execute(sql);
 
         System.out.println("Таблица создана или уже существует.");
     }
 
     private static void writeDB() throws SQLException {
-        resSet = statmt.executeQuery("SELECT count(*) FROM users");
+        String sql = "SELECT count(*) FROM users";
+        resSet = statmt.executeQuery(sql);
         int count = 0;
         while (resSet.next()) {
             count = resSet.getInt(1);
         }
         if (count == 0) {
             for (DBAuthService.UserData userDatum : USER_DATA) {
-                statmt.execute(String.format("INSERT INTO 'users' ('login', 'password', 'username') VALUES ('%s', '%s', '%s'); ",
-                        userDatum.login, userDatum.password, userDatum.username));
+                sql = "INSERT INTO 'users' ('login', 'password', 'username') VALUES ('%s', '%s', '%s');";
+                statmt.execute(String.format(sql, userDatum.login, userDatum.password, userDatum.username));
             }
             System.out.println("Таблица заполнена");
         }
@@ -106,5 +108,18 @@ public class DBAuthService implements AuthService {
             e.printStackTrace();
         }
         System.out.println("Сервис аутентификации оставлен");
+    }
+
+    @Override
+    public void changNickname(String nickname, String newNickname) {
+        String sql = "UPDATE users SET username = ? WHERE username = ?";
+
+        try (PreparedStatement prstmt = conn.prepareStatement(sql)) {
+            prstmt.setString(1, newNickname);
+            prstmt.setString(2, nickname);
+            prstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

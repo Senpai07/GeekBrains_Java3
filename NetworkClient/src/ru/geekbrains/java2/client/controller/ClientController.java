@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ru.geekbrains.java2.client.Command;
 import ru.geekbrains.java2.client.model.NetworkService;
 import ru.geekbrains.java2.client.view.AuthDialog;
 import ru.geekbrains.java2.client.view.ClientChat;
@@ -19,7 +18,7 @@ public class ClientController {
 
   private final NetworkService networkService;
   private String nickname;
-  private Stage primaryStage;
+  private final Stage primaryStage;
   private Parent rootChat;
   private ClientChat clientChat;
   private AuthDialog authDialog;
@@ -59,8 +58,6 @@ public class ClientController {
           setUserName(nickname);
           Platform.runLater(this::openChat);
         });
-    //        authDialog.setVisible(true);
-
   }
 
   private void openChat() {
@@ -77,9 +74,9 @@ public class ClientController {
 
     primaryStage.setTitle("Chat client 1.0 : " + nickname);
     primaryStage.setScene(new Scene(rootChat));
-    primaryStage.setIconified(false);
-    primaryStage.show();
-    primaryStage.setOnCloseRequest(e -> System.exit(0));
+//    primaryStage.setIconified(false);
+//    primaryStage.show();
+//    primaryStage.setOnCloseRequest(e -> System.exit(0));
     networkService.setMessageHandler(clientChat::appendMessage);
   }
 
@@ -117,6 +114,11 @@ public class ClientController {
     return nickname;
   }
 
+  public void setNickname(String nickname) {
+    this.nickname = nickname;
+    Platform.runLater(() -> primaryStage.setTitle("Chat client 1.0 : " + nickname));
+  }
+
   public void updateUsersList(List<String> users) {
     users.remove(nickname);
     users.add(0, "All");
@@ -136,6 +138,14 @@ public class ClientController {
       authDialog.showError(errorMessage);
     } else if (clientChat.isActive()) {
       clientChat.showError(errorMessage);
+    }
+  }
+
+  public void sendNewNickname(String nickname, String newNickname) {
+    try {
+      networkService.sendCommand(changeNicknameCommand(nickname, newNickname));
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 }
