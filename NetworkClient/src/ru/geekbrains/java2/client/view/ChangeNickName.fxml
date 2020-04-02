@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="300.0" prefWidth="700.0" style="-fx-background-color: #2E3348;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.geekbrains.java2.client.view.ChangeNickName">
+    <children>
+        <AnchorPane layoutX="-1.0" layoutY="56.0" prefHeight="344.0" prefWidth="700.0" style="-fx-background-color: #fafafa;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="56.0">
+            <children>
+                <AnchorPane layoutX="112.0" layoutY="405.0" prefHeight="25.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                <TextField fx:id="nicknameEdit" layoutX="193.0" layoutY="72.0" prefHeight="38.0" prefWidth="315.0" promptText="Ник пользователя" style="-fx-background-color: #fafafa; -fx-border-color: silver; -fx-border-radius: 5;">
+                    <font>
+                        <Font size="17.0" />
+                    </font>
+                </TextField>
+                <Button fx:id="changeNicknameButton" layoutX="193.0" layoutY="139.0" mnemonicParsing="false" onAction="#changeNicknameButtonAction" prefHeight="38.0" prefWidth="131.0" style="-fx-background-color: #5597fb;" text="Сменить" textFill="WHITE">
+                    <font>
+                        <Font name="Georgia Bold" size="17.0" />
+                    </font>
+                </Button>
+                <Button fx:id="cancelButton" layoutX="377.0" layoutY="139.0" mnemonicParsing="false" onAction="#cancelButtonAction" prefHeight="38.0" prefWidth="131.0" style="-fx-background-color: #fb5c5c;" text="Отмена" textFill="WHITE">
+                    <font>
+                        <Font name="Georgia Bold" size="17.0" />
+                    </font>
+                </Button>
+                <Label fx:id="currentNicknameLabel" layoutX="193.0" layoutY="33.0" text="Текущий ник: ">
+                    <font>
+                        <Font size="19.0" />
+                    </font>
+                </Label>
+            </children>
+        </AnchorPane>
+        <Label alignment="CENTER" layoutY="6.0" minWidth="-Infinity" prefHeight="42.0" prefWidth="700.0" text="Чат и Ко" textFill="WHITE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <font>
+                <Font name="Monotype Corsiva" size="34.0" />
+            </font>
+        </Label>
+    </children>
+</AnchorPane>

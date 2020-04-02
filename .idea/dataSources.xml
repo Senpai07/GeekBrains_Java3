@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="TEST1" uuid="c12bf9e6-fa83-41ca-890f-b7ab77798e7e">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:D:\Coding\Java\IdeaProjects\GeekBrains_Java3\TEST1.s3db</jdbc-url>
+    </data-source>
+  </component>
+</project>

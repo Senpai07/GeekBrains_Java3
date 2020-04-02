@@ -3,10 +3,7 @@ package ru.geekbrains.java2.client.model;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import ru.geekbrains.java2.client.Command;
-import ru.geekbrains.java2.client.command.AuthCommand;
-import ru.geekbrains.java2.client.command.ErrorCommand;
-import ru.geekbrains.java2.client.command.MessageCommand;
-import ru.geekbrains.java2.client.command.UpdateUsersListCommand;
+import ru.geekbrains.java2.client.command.*;
 import ru.geekbrains.java2.client.controller.AuthEvent;
 import ru.geekbrains.java2.client.controller.ClientController;
 import ru.geekbrains.java2.client.controller.MessageHandler;
@@ -76,19 +73,14 @@ public class NetworkService {
                       List<String> users = commandData.getUsers();
                       Platform.runLater(() -> controller.updateUsersList(users));
                     }
+                    case CHANGE_NICKNAME -> {
+                      ChangeNicknameCommand commandData =
+                              (ChangeNicknameCommand) command.getData();
+                      String newNickname = commandData.getNewNickname();
+                      controller.setNickname(newNickname);
+                    }
                     default -> System.err.println("Unknown type of command: " + command.getType());
                   }
-
-//                  if (message.startsWith("/auth")) {
-//                    String[] messageParts = message.split("\\s+", 2);
-//                    nickname = messageParts[1];
-//                  } else if (messageHandler != null) {
-//                    messageHandler.handle(message);
-//                  } else
-//                    Platform.runLater(
-//                        () ->
-//                            Message.ShowMessage(
-//                                "Ошибка аутентификации!", message, Alert.AlertType.ERROR));
                 } catch (IOException e) {
                   System.out.println("Поток чтения был прерван!");
                   return;
