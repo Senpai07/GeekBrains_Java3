@@ -3,14 +3,16 @@ package ru.geekbrains.java2.server;
 import ru.geekbrains.java2.client.Command;
 import ru.geekbrains.java2.server.auth.AuthService;
 import ru.geekbrains.java2.server.auth.DBAuthService;
+import ru.geekbrains.java2.server.cens.BaseCensorshipService;
+import ru.geekbrains.java2.server.cens.CensorService;
 import ru.geekbrains.java2.server.client.ClientHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class NetworkServer {
 
@@ -19,16 +21,20 @@ public class NetworkServer {
     //  private final List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     //  private final List<ClientHandler> clients = new CopyOnWriteArrayList<>();
     private final AuthService authService;
+    private final CensorService censorService;
+
 
     public NetworkServer(int port) {
         this.port = port;
         this.authService = new DBAuthService();
+        this.censorService = new BaseCensorshipService();
     }
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Сервер был успешно запущен на порту " + port);
             authService.start();
+            censorService.start();
             //noinspection InfiniteLoopStatement
             while (true) {
                 System.out.println("Ожидание клиентского подключения...");
@@ -41,6 +47,7 @@ public class NetworkServer {
             e.printStackTrace();
         } finally {
             authService.stop();
+            censorService.stop();
         }
     }
 
@@ -51,6 +58,10 @@ public class NetworkServer {
 
     public AuthService getAuthService() {
         return authService;
+    }
+
+    public CensorService getCensorService() {
+        return censorService;
     }
 
     public synchronized void broadcastMessage(Command message, ClientHandler owner)
@@ -82,14 +93,14 @@ public class NetworkServer {
     }
 
     public List<String> getAllUsernames() {
-        //        return clients.stream()
-        //                .map(client -> client.getNickname())
-        //                .collect(Collectors.toList());
-        List<String> usernames = new LinkedList<>();
-        for (ClientHandler clientHandler : clients) {
-            usernames.add(clientHandler.getNickname());
-        }
-        return usernames;
+        return clients.stream()
+                .map(ClientHandler::getNickname)
+                .collect(Collectors.toList());
+//        List<String> usernames = new LinkedList<>();
+//        for (ClientHandler clientHandler : clients) {
+//            usernames.add(clientHandler.getNickname());
+//        }
+//        return usernames;
     }
 
     public boolean isNicknameBusy(String username) {
