@@ -12,9 +12,15 @@ import javafx.stage.Stage;
 import ru.geekbrains.java2.client.controller.ClientController;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClientChat {
+    public static final int MAX_HISTORY_SIZE = 100;
+    public static final String NAME_MESS_ARH = "msg_%s.arh";
     @FXML
     public ListView<String> usersList;
     @FXML
@@ -56,7 +62,9 @@ public class ClientChat {
         // get a handle to the stage
         Stage stage = (Stage) exitButton.getScene().getWindow();
         // do what you have to do
+        saveMessagesHistory();
         stage.close();
+        controller.shutdown();
         System.exit(0);
     }
 
@@ -94,6 +102,25 @@ public class ClientChat {
         Platform.runLater(() -> chatMessageList.getItems().addAll(incomeMessage));
     }
 
+    public void saveMessagesHistory() {
+        String fileName = String.format(NAME_MESS_ARH, controller.getUsername());
+        List<String> lines = new ArrayList<>();
+        for (Object chatMessageListItem : chatMessageList.getItems()) {
+            if (chatMessageListItem instanceof Text) {
+                Text text = (Text) chatMessageListItem;
+                lines.add(text.getText());
+            } else if (chatMessageListItem instanceof String) {
+                lines.add((String) chatMessageListItem);
+            }
+        }
+        try {
+            Files.deleteIfExists(Paths.get(fileName));
+            Files.write(Paths.get(fileName), lines, StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void updateUsers(List<String> users) {
         Platform.runLater(
                 () -> {
@@ -123,5 +150,26 @@ public class ClientChat {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void loadMessagesHistory() {
+        String fileName = String.format(NAME_MESS_ARH, controller.getUsername());
+        List<String> lines;
+
+        try {
+            if (Files.exists(Paths.get(fileName))) {
+                lines = Files.readAllLines(Paths.get(fileName));
+                int size = lines.size();
+                if (size > MAX_HISTORY_SIZE) {
+                    lines.subList(0, size - MAX_HISTORY_SIZE).clear();
+                }
+                chatMessageList.getItems().addAll(lines);
+                Files.deleteIfExists(Paths.get(fileName));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
