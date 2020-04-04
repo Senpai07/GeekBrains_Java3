@@ -45,7 +45,7 @@ public class ClientHandler {
         try {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
-            executorService = Executors.newFixedThreadPool(1);
+            executorService = Executors.newSingleThreadExecutor();
             executorService.execute(
                     () -> {
                         try {

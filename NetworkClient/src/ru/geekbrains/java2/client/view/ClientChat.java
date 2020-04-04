@@ -118,11 +118,13 @@ public class ClientChat {
                 lines.add((String) chatMessageListItem);
             }
         }
-        try {
-            Files.deleteIfExists(Paths.get(fileName));
-            Files.write(Paths.get(fileName), lines, StandardOpenOption.CREATE);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!lines.isEmpty()) {
+            try {
+                Files.deleteIfExists(Paths.get(fileName));
+                Files.write(Paths.get(fileName), lines, StandardOpenOption.CREATE);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -160,7 +162,6 @@ public class ClientChat {
     public void loadMessagesHistory() {
         String fileName = String.format(NAME_MESS_ARH, controller.getUsername());
         List<String> lines;
-
         try {
             if (Files.exists(Paths.get(fileName))) {
                 lines = Files.readAllLines(Paths.get(fileName));
@@ -171,7 +172,6 @@ public class ClientChat {
                 chatMessageList.getItems().addAll(lines);
                 Files.deleteIfExists(Paths.get(fileName));
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
