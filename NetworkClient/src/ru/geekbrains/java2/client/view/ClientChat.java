@@ -1,6 +1,7 @@
 package ru.geekbrains.java2.client.view;
 
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -55,6 +56,8 @@ public class ClientChat {
         clearButton.setTooltip(new Tooltip("Очистить чат"));
         sendButton.setTooltip(new Tooltip("Отправить сообщение"));
         exitButton.setTooltip(new Tooltip("Закрыть программу"));
+//        Add scroll on the bottom element when added anywhere
+        addAutoScroll(chatMessageList);
     }
 
     @FXML
@@ -91,6 +94,8 @@ public class ClientChat {
         Text myText = new Text(String.format("%s: %s", "Я", newMessage));
         myText.setStyle("-fx-font-weight: bold");
         chatMessageList.getItems().addAll(myText);
+//        Add scroll on the bottom element when added here
+//        Platform.runLater(() -> chatMessageList.scrollTo(chatMessageList.getItems().size() - 1));
     }
 
     @FXML
@@ -113,11 +118,13 @@ public class ClientChat {
                 lines.add((String) chatMessageListItem);
             }
         }
-        try {
-            Files.deleteIfExists(Paths.get(fileName));
-            Files.write(Paths.get(fileName), lines, StandardOpenOption.CREATE);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!lines.isEmpty()) {
+            try {
+                Files.deleteIfExists(Paths.get(fileName));
+                Files.write(Paths.get(fileName), lines, StandardOpenOption.CREATE);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -155,7 +162,6 @@ public class ClientChat {
     public void loadMessagesHistory() {
         String fileName = String.format(NAME_MESS_ARH, controller.getUsername());
         List<String> lines;
-
         try {
             if (Files.exists(Paths.get(fileName))) {
                 lines = Files.readAllLines(Paths.get(fileName));
@@ -166,10 +172,22 @@ public class ClientChat {
                 chatMessageList.getItems().addAll(lines);
                 Files.deleteIfExists(Paths.get(fileName));
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public static <S> void addAutoScroll(final ListView<S> view) {
+        if (view == null) {
+            throw new NullPointerException();
+        }
+
+        view.getItems().addListener((ListChangeListener<S>) (c -> {
+            c.next();
+            final int size = view.getItems().size();
+            if (size > 0) {
+                view.scrollTo(size - 1);
+            }
+        }));
     }
 }

@@ -11,6 +11,8 @@ import ru.geekbrains.java2.server.NetworkServer;
 import java.io.*;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientHandler {
 
@@ -23,6 +25,8 @@ public class ClientHandler {
     private ObjectOutputStream out;
 
     private String nickname;
+
+    ExecutorService executorService;
 
     public ClientHandler(NetworkServer networkServer, Socket socket) {
         this.networkServer = networkServer;
@@ -41,8 +45,8 @@ public class ClientHandler {
         try {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
-
-            new Thread(
+            executorService = Executors.newSingleThreadExecutor();
+            executorService.execute(
                     () -> {
                         try {
                             waitCheckAuth();
@@ -55,8 +59,7 @@ public class ClientHandler {
                         } finally {
                             closeConnection();
                         }
-                    })
-                    .start();
+                    });
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,13 +67,12 @@ public class ClientHandler {
     }
 
     private void waitCheckAuth() {
-        Thread thread =
-                new Thread(
+        executorService.execute(
                         () -> {
                             try {
                                 Thread.sleep(AUTH_TIMEOUT);
                             } catch (InterruptedException e) {
-                                e.printStackTrace();
+                                return;
                             }
                             if (getNickname() == null) {
                                 String errorMessage = "Timeout authentication!";
@@ -84,14 +86,13 @@ public class ClientHandler {
                                 }
                             }
                         });
-        thread.setDaemon(true);
-        thread.start();
     }
 
     private void closeConnection() {
         try {
             networkServer.unsubscribe(this);
             clientSocket.close();
+            executorService.shutdownNow();
         } catch (IOException e) {
             e.printStackTrace();
         }
