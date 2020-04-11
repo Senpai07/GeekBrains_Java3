@@ -2,11 +2,12 @@ package lesson5;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Race {
-    private ArrayList<Stage> stages;
+    private List<Stage> stages;
 
-    public ArrayList<Stage> getStages() {
+    public List<Stage> getStages() {
         return stages;
     }
 
