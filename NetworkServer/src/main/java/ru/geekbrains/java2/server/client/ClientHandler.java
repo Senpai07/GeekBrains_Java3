@@ -1,5 +1,6 @@
 package ru.geekbrains.java2.server.client;
 
+import org.apache.log4j.Logger;
 import ru.geekbrains.java2.client.Command;
 import ru.geekbrains.java2.client.CommandType;
 import ru.geekbrains.java2.client.command.AuthCommand;
@@ -8,7 +9,9 @@ import ru.geekbrains.java2.client.command.ChangeNicknameCommand;
 import ru.geekbrains.java2.client.command.PrivateMessageCommand;
 import ru.geekbrains.java2.server.NetworkServer;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -16,6 +19,7 @@ import java.util.concurrent.Executors;
 
 public class ClientHandler {
 
+    public static final Logger LOGGER = Logger.getLogger(ClientHandler.class);
     public static final String UNKNOWN = "<Не авторизован>";
     public static final int AUTH_TIMEOUT = 120000;
     private final NetworkServer networkServer;
@@ -45,7 +49,7 @@ public class ClientHandler {
         try {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
-            executorService = Executors.newSingleThreadExecutor();
+            executorService = Executors.newFixedThreadPool(2);
             executorService.execute(
                     () -> {
                         try {
@@ -53,9 +57,9 @@ public class ClientHandler {
                             authentication();
                             readMessages();
                         } catch (IOException e) {
-                            System.out.printf(
+                            LOGGER.warn(String.format(
                                     "Соединение с клиентом %s было закрыто!%n",
-                                    nickname == null ? UNKNOWN : nickname);
+                                    nickname == null ? UNKNOWN : nickname));
                         } finally {
                             closeConnection();
                         }
@@ -68,24 +72,24 @@ public class ClientHandler {
 
     private void waitCheckAuth() {
         executorService.execute(
-                        () -> {
-                            try {
-                                Thread.sleep(AUTH_TIMEOUT);
-                            } catch (InterruptedException e) {
-                                return;
-                            }
-                            if (getNickname() == null) {
-                                String errorMessage = "Timeout authentication!";
-                                System.err.println(errorMessage);
-                                try {
-                                    sendMessage(Command.errorCommand(errorMessage));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } finally {
-                                    closeConnection();
-                                }
-                            }
-                        });
+                () -> {
+                    try {
+                        Thread.sleep(AUTH_TIMEOUT);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    if (getNickname() == null) {
+                        String errorMessage = "Timeout authentication!";
+                        LOGGER.error(errorMessage);
+                        try {
+                            sendMessage(Command.errorCommand(errorMessage));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            closeConnection();
+                        }
+                    }
+                });
     }
 
     private void closeConnection() {
@@ -104,9 +108,12 @@ public class ClientHandler {
             if (command == null) {
                 continue;
             }
+            String commandInfo = String.format("Command type: %s from user %s",
+                    command.getType(), nickname == null ? UNKNOWN : nickname);
+            LOGGER.debug(commandInfo);
             switch (command.getType()) {
                 case END -> {
-                    System.out.println("Received 'END' command");
+                    LOGGER.info("Received 'END' command");
                     return;
                 }
                 case PRIVATE_MESSAGE -> {
@@ -114,12 +121,14 @@ public class ClientHandler {
                     String receiver = commandData.getReceiver();
                     String message = commandData.getMessage();
                     message = networkServer.getCensorService().checkMessage(message);
+                    LOGGER.info(nickname + " прислал сообщение: " + message);
                     networkServer.sendMessage(receiver, Command.messageCommand(nickname, message));
                 }
                 case BROADCAST_MESSAGE -> {
                     BroadcastMessageCommand commandData = (BroadcastMessageCommand) command.getData();
                     String message = commandData.getMessage();
                     message = networkServer.getCensorService().checkMessage(message);
+                    LOGGER.info(nickname + " прислал сообщение: " + message);
                     networkServer.broadcastMessage(Command.messageCommand(nickname, message), this);
                 }
                 case CHANGE_NICKNAME -> {
@@ -127,12 +136,13 @@ public class ClientHandler {
                     String newNickname = commandData.getNewNickname();
                     networkServer.changeNickname(newNickname, this);
                     sendMessage(Command.changeNicknameCommand(nickname, newNickname));
+                    LOGGER.info(nickname + " сменил ник на: " + newNickname);
                     nickname = newNickname;
                     List<String> users = networkServer.getAllUsernames();
                     networkServer.broadcastMessage(Command.updateUsersListCommand(users), null);
 
                 }
-                default -> System.err.println("Unknown type of command: " + command.getType());
+                default -> LOGGER.error("Unknown type of command: " + command.getType());
             }
         }
     }
@@ -141,8 +151,8 @@ public class ClientHandler {
         try {
             return (Command) in.readObject();
         } catch (ClassNotFoundException e) {
-            String errorMessage = "Unknown type of command from client!";
-            System.err.println(errorMessage);
+            String errorMessage = "Unknown type of command from client " + nickname;
+            LOGGER.error(errorMessage);
             e.printStackTrace();
             sendMessage(Command.errorCommand(errorMessage));
             return null;
@@ -161,7 +171,7 @@ public class ClientHandler {
                     return;
                 }
             } else {
-                System.err.println("Unknown type of command for auth process: " + command.getType());
+                LOGGER.error("Unknown type of command for auth process: " + command.getType());
             }
         }
     }
@@ -182,6 +192,7 @@ public class ClientHandler {
         } else {
             nickname = username;
             String message = nickname + " зашел в чат!";
+            LOGGER.info(message);
             networkServer.broadcastMessage(Command.messageCommand(null, message), this);
             commandData.setUsername(nickname);
             sendMessage(command);
