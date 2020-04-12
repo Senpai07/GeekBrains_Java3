@@ -72,3 +72,4 @@ fabric.properties
 
 # JAR libraries
 *.jar
+*.class
