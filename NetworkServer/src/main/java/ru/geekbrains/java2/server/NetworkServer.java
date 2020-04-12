@@ -1,5 +1,7 @@
 package ru.geekbrains.java2.server;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import ru.geekbrains.java2.client.Command;
 import ru.geekbrains.java2.server.auth.AuthService;
 import ru.geekbrains.java2.server.auth.DBAuthService;
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class NetworkServer {
+
+    private static final Logger LOGGER = LogManager.getLogger(NetworkServer.class);
 
     private final int port;
     private final List<ClientHandler> clients = new ArrayList<>();
@@ -32,18 +36,18 @@ public class NetworkServer {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Сервер был успешно запущен на порту " + port);
+            LOGGER.info("Сервер был успешно запущен на порту " + port);
             authService.start();
             censorService.start();
             //noinspection InfiniteLoopStatement
             while (true) {
-                System.out.println("Ожидание клиентского подключения...");
+                LOGGER.info("Ожидание клиентского подключения...");
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Клиент подключился");
+                LOGGER.info("Клиент подключился");
                 createClientHandler(clientSocket);
             }
         } catch (IOException e) {
-            System.out.println("Ошибка при работе сервера");
+            LOGGER.error("Ошибка при работе сервера");
             e.printStackTrace();
         } finally {
             authService.stop();

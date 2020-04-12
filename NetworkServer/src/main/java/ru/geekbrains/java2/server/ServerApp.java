@@ -1,6 +1,10 @@
 package ru.geekbrains.java2.server;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 public class ServerApp {
+    private static final Logger LOGGER = LogManager.getLogger(ServerApp.class);
 
     private static final int DEFAULT_PORT = 8189;
 
@@ -15,7 +19,7 @@ public class ServerApp {
             try {
                 port = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                System.out.println("Некорректный формат порта, будет использоваться порт по умолчанию");
+                LOGGER.error("Некорректный формат порта, будет использоваться порт по умолчанию");
             }
         }
         return port;

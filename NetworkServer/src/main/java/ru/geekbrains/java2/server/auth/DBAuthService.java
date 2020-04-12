@@ -1,10 +1,20 @@
 package ru.geekbrains.java2.server.auth;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.sql.*;
 import java.util.List;
 import java.util.Objects;
 
 public class DBAuthService implements AuthService {
+
+    public static final Logger LOGGER = LogManager.getLogger(DBAuthService.class);
+    public static final String SELECT_USERS = "SELECT * FROM users";
+    public static final String CREATE_TABLE_USERS = "CREATE TABLE if not exists 'users' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'login' text, 'password' text, 'username' text);";
+    public static final String SELECT_COUNT_FROM_USERS = "SELECT count(*) FROM users";
+    public static final String INSERT_INTO_USERS_VALUES = "INSERT INTO 'users' ('login', 'password', 'username') VALUES ('%s', '%s', '%s');";
+    public static final String UPDATE_USERS_SET_USERNAME_WHERE_USERNAME = "UPDATE users SET username = ? WHERE username = ?";
 
     private static Connection conn;
     private static Statement statmt;
@@ -44,9 +54,9 @@ public class DBAuthService implements AuthService {
     @Override
     public String getUsernameByLoginAndPassword(String login, String password) {
         try {
-            resSet = statmt.executeQuery("SELECT * FROM users");
+            resSet = statmt.executeQuery(SELECT_USERS);
             while (resSet.next()) {
-                int id = resSet.getInt("id");
+//                int id = resSet.getInt("id");
                 String login1 = resSet.getString("login");
                 String password1 = resSet.getString("password");
                 String username1 = resSet.getString("username");
@@ -55,32 +65,29 @@ public class DBAuthService implements AuthService {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("EXCEPTION", e);
         }
         return null;
     }
 
     private static void createDB() throws SQLException {
         statmt = conn.createStatement();
-        String sql = "CREATE TABLE if not exists 'users' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'login' text, 'password' text, 'username' text);";
-        statmt.execute(sql);
+        statmt.execute(CREATE_TABLE_USERS);
 
-        System.out.println("Таблица создана или уже существует.");
+        LOGGER.info("Таблица users создана или уже существует.");
     }
 
     private static void writeDB() throws SQLException {
-        String sql = "SELECT count(*) FROM users";
-        resSet = statmt.executeQuery(sql);
+        resSet = statmt.executeQuery(SELECT_COUNT_FROM_USERS);
         int count = 0;
         while (resSet.next()) {
             count = resSet.getInt(1);
         }
         if (count == 0) {
             for (DBAuthService.UserData userDatum : USER_DATA) {
-                sql = "INSERT INTO 'users' ('login', 'password', 'username') VALUES ('%s', '%s', '%s');";
-                statmt.execute(String.format(sql, userDatum.login, userDatum.password, userDatum.username));
+                statmt.execute(String.format(INSERT_INTO_USERS_VALUES, userDatum.login, userDatum.password, userDatum.username));
             }
-            System.out.println("Таблица заполнена");
+            LOGGER.info("Таблица заполнена");
         }
     }
 
@@ -93,9 +100,9 @@ public class DBAuthService implements AuthService {
             createDB();
             writeDB();
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("EXCEPTION", e);
         }
-        System.out.println("Сервис аутентификации запущен");
+        LOGGER.info("Сервис аутентификации запущен");
     }
 
     @Override
@@ -105,21 +112,19 @@ public class DBAuthService implements AuthService {
             statmt.close();
             conn.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("EXCEPTION", e);
         }
-        System.out.println("Сервис аутентификации оставлен");
+        LOGGER.info("Сервис аутентификации оставлен");
     }
 
     @Override
     public void changNickname(String nickname, String newNickname) {
-        String sql = "UPDATE users SET username = ? WHERE username = ?";
-
-        try (PreparedStatement prstmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement prstmt = conn.prepareStatement(UPDATE_USERS_SET_USERNAME_WHERE_USERNAME)) {
             prstmt.setString(1, newNickname);
             prstmt.setString(2, nickname);
             prstmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 }
