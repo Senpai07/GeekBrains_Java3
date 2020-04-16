@@ -11,14 +11,14 @@ public class TestClass {
         System.out.println("BeforeSuite method");
     }
 
-    @Test(priority = 5)
+    @Test(priority = 7)
     public void testMethod1() {
-        System.out.println("Test method priority = 5");
+        System.out.println("Test method priority = 7");
     }
 
-    @Test(priority = 1)
+    @Test(priority = 5)
     public void testMethod2() {
-        System.out.println("Test method priority = 1");
+        System.out.println("Test method1 priority = 5");
     }
 
     @Test(priority = 10)
@@ -26,14 +26,19 @@ public class TestClass {
         System.out.println("Test method priority = 10");
     }
 
-    @Test(priority = 7)
+    @Test(priority = 3)
     private void testMethod4() {
-        System.out.println("Test method priority = 7 (private)");
+        System.out.println("Test private method priority = 3");
     }
 
     @Test
     public void testMethod5() {
         System.out.println("Test method priority = default(1)");
+    }
+
+    @Test(priority = 5)
+    public void testMethod6() {
+        System.out.println("Test method2 priority = 5");
     }
 
     @AfterSuite
