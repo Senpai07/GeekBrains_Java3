@@ -13,8 +13,6 @@ import java.util.List;
 
 public class GoTest {
 
-    public static final int MIN_PRIORITY = 1;
-    public static final int MAX_PRIORITY = 10;
     public static final String CHECK_ERROR = "Методы с аннотациями @BeforeSuite и @AfterSuite должны присутствовать в единственном экземпляре";
 
     public static void start(Class<?> testedClass) {
